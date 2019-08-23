@@ -26,22 +26,28 @@ const ColorList = ({ colors, updateColors, history }) => {
       .put(`http://localhost:5000/api/colors/:id`, colorToEdit)
       .then(res => {
         console.log('updated color data', res);
-        setColorToEdit(colorToEdit.filter(color => {
-          return color === color.id ? e.target.value : color;
+        updateColors(colors.map(color => {
+          if (colorToEdit === color.id) {
+            return colorToEdit
+          }
+          return color;
         }))
         history.push('/colors');
       })
+      .then(res => setEditing(res.data))
       .catch(err => console.log(err.response));
   };
 
   const deleteColor = color => {
     axiosWithAuth()
       // make a delete request to delete this color
-      .delete(`http://localhost:5000/api/colors/${color.id}`)
+      .delete(`http://localhost:5000/api/colors/${color.id}`, color)
       .then(res => {
         console.log(res);
-        setColorToEdit(colorToEdit.filter(color => {
-          return color === color.id ? color.target.value : color;
+        updateColors(colors.filter(color => {
+          if (color === color.id) {
+            return color.id;
+          };
         }))
         history.push('/colors');
       })
@@ -83,7 +89,7 @@ const ColorList = ({ colors, updateColors, history }) => {
             <span>
               <span className="delete" onClick={() => deleteColor(color)}>
                 x
-              </span>{" "}
+            </span>{" "}
               {color.color}
             </span>
             <div
@@ -98,7 +104,7 @@ const ColorList = ({ colors, updateColors, history }) => {
           <legend>edit color</legend>
           <label>
             color name:
-            <input
+          <input
               onChange={e =>
                 setColorToEdit({ ...colorToEdit, color: e.target.value })
               }
@@ -107,7 +113,7 @@ const ColorList = ({ colors, updateColors, history }) => {
           </label>
           <label>
             hex code:
-            <input
+          <input
               onChange={e =>
                 setColorToEdit({
                   ...colorToEdit,
@@ -126,20 +132,20 @@ const ColorList = ({ colors, updateColors, history }) => {
       <div className="spacer" />
       {/* stretch - build another form here to add a color */}
       {/* <form onSubmit={handleColor}>
+      <input
+        type='text'
+        name='color'
+        value={color.color}
+        onChange={handleColor}
+      />
         <input
-          type='text'
-          name='color'
-          value={color.color}
-          onChange={handleColor}
-        />
-         <input
-          type='text'
-          name='code'
-          value={color.code}
-          onChange={handleColor}
-        />
-        <button onClick={addColor}>Add Color</button>
-      </form> */}
+        type='text'
+        name='code'
+        value={color.code}
+        onChange={handleColor}
+      />
+      <button onClick={addColor}>Add Color</button>
+    </form> */}
     </div>
   );
 };
