@@ -10,13 +10,14 @@ const ColorList = ({ colors, updateColors, history }) => {
   //console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  // const [addColor, setAddColor] = useState([]);
 
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
   };
 
-  //submit handler
+  // 'save' submit handler
   const saveEdit = e => {
     e.preventDefault();
     axiosWithAuth()
@@ -24,39 +25,53 @@ const ColorList = ({ colors, updateColors, history }) => {
       // think about where will you get the id from. where is it saved right now?
       .put(`http://localhost:5000/api/colors/:id`, colorToEdit)
       .then(res => {
-        console.log('res data', res);
+        console.log('updated color data', res);
+        setColorToEdit(colorToEdit.filter(color => {
+          return color === color.id ? e.target.value : color;
+        }))
         history.push('/colors');
       })
       .catch(err => console.log(err.response));
   };
 
   const deleteColor = color => {
-    // make a delete request to delete this color
     axiosWithAuth()
-      .delete(`http://localhost:5000/api/colors/${color.id}`, color)
-      .then(res => console.log(res))
+      // make a delete request to delete this color
+      .delete(`http://localhost:5000/api/colors/${color.id}`)
+      .then(res => {
+        console.log(res);
+        setColorToEdit(colorToEdit.filter(color => {
+          return color === color.id ? color.target.value : color;
+        }))
+        history.push('/colors');
+      })
       .catch(err => console.log(err.response));
   };
 
-  //submit handler for color form
+  // submit handler for color form
   // const handleSubmit = event => {
   //   event.preventDefault();
-  //   axios.put(`http://localhost:5000/api/colors/${colors.id}`, colors)
+  //   axios.put(`http://localhost:5000/api/colors/${props.match.params.id}`, colorToEdit)
   //     .then(res => {
   //       console.log(res);
-  //       props.history.push('/colors');
+  //       history.push('/colors');
   //     })
   //     .catch(err => console.log(err.response));
   // };
 
   // change handler for color form
-  // const handleColor = event => setMovie({
-  //   ...color, [event.target.name]: event.target.value 
-  // });
+  // const handleColor = index => event => {
+  //    setColorToEdit({
+  //      ...colorToEdit, colors: colorToEdit.colors.map((color, colorIndex) => {
+  //        return colorIndex === index ? event.target.value : color;
+  //      })
+  //    });
+  // };
 
+  // add color fxn for color form
   // const addColor = event => {
   //   event.preventDefault();
-  //   setEditing({ ...editing, color: "" });
+  //   setColorToEdit({ ...colorToEdit, colors: [...colorToEdit, ""] });
   // };
 
   return (
@@ -110,7 +125,7 @@ const ColorList = ({ colors, updateColors, history }) => {
       )}
       <div className="spacer" />
       {/* stretch - build another form here to add a color */}
-      {/* <form onSubmit={handleSubmit}>
+      {/* <form onSubmit={handleColor}>
         <input
           type='text'
           name='color'
