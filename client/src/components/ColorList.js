@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { axiosWithAuth } from "../utils/axiosWithAuth";
 
 const initialColor = {
   color: "",
   code: { hex: "" }
 };
 
-const ColorList = ({ colors, updateColors }) => {
-  console.log(colors);
+const ColorList = ({ colors, updateColors, history }) => {
+  //console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
 
@@ -16,16 +16,48 @@ const ColorList = ({ colors, updateColors }) => {
     setColorToEdit(color);
   };
 
+  //submit handler
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
+    axiosWithAuth()
+      // Make a put request to save your updated color
+      // think about where will you get the id from. where is it saved right now?
+      .put(`http://localhost:5000/api/colors/:id`, colorToEdit)
+      .then(res => {
+        console.log('res data', res);
+        history.push('/colors');
+      })
+      .catch(err => console.log(err.response));
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    axiosWithAuth()
+      .delete(`http://localhost:5000/api/colors/${color.id}`, color)
+      .then(res => console.log(res))
+      .catch(err => console.log(err.response));
   };
+
+  //submit handler for color form
+  // const handleSubmit = event => {
+  //   event.preventDefault();
+  //   axios.put(`http://localhost:5000/api/colors/${colors.id}`, colors)
+  //     .then(res => {
+  //       console.log(res);
+  //       props.history.push('/colors');
+  //     })
+  //     .catch(err => console.log(err.response));
+  // };
+
+  // change handler for color form
+  // const handleColor = event => setMovie({
+  //   ...color, [event.target.name]: event.target.value 
+  // });
+
+  // const addColor = event => {
+  //   event.preventDefault();
+  //   setEditing({ ...editing, color: "" });
+  // };
 
   return (
     <div className="colors-wrap">
@@ -78,6 +110,21 @@ const ColorList = ({ colors, updateColors }) => {
       )}
       <div className="spacer" />
       {/* stretch - build another form here to add a color */}
+      {/* <form onSubmit={handleSubmit}>
+        <input
+          type='text'
+          name='color'
+          value={color.color}
+          onChange={handleColor}
+        />
+         <input
+          type='text'
+          name='code'
+          value={color.code}
+          onChange={handleColor}
+        />
+        <button onClick={addColor}>Add Color</button>
+      </form> */}
     </div>
   );
 };
